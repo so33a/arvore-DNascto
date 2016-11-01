@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "arvore.h"
-#include "fila.h"
+#include "fila.c"
 
 ARVORE novaArvore() {
-  ARVORE a = malloc(sizeof(struct arvore));  
+  ARVORE a = malloc(sizeof(struct arvore));
   a->z = malloc(sizeof(struct node));
   a->raiz = a->z;
   a->raiz->left = a->raiz->right = a->z;
@@ -26,9 +26,9 @@ int contaNosR (ARVORE a, link h) {
 }
 
 int contaParesR (ARVORE a, link h) {
-  if(h == a->z) 
+  if(h == a->z)
     return 0;
-  if (h->key %2 == 0) 
+  if (h->key %2 == 0)
     return 1 + contaParesR(a, h->left) + contaParesR(a, h->right);
   else
     return  contaParesR(a, h->left) + contaParesR(a, h->right);
@@ -59,15 +59,15 @@ void imprimeEmOrdemR (ARVORE a, link h) {
 }
 
 void imprimeEmOrdem (ARVORE a) {
-   imprimeEmOrdemR(a, a->raiz); 
+   imprimeEmOrdemR(a, a->raiz);
 }
 
 link buscaR (ARVORE a, link h, int key) {
-  if(h == a->z) return NULL;
-  if(h->key == key) return h;
-  if( h->key < key) 
-    return buscaR(a, h->right, key);
-  return buscaR(a, h->left, key);
+    if(h == a->z) return NULL;
+    if(h->key == key) return h;
+    if(h->key < key)
+        return buscaR(a, h->right, key);
+    return buscaR(a, h->left, key);
 }
 
 
@@ -83,18 +83,18 @@ link novoNo(int key, link l, link r) {
   return x;
 }
 link inserirR (ARVORE a, link h, int key) {
-  if(h == a->z) 
-    return novoNo(key, a->z, a->z); 
+  if(h == a->z)
+    return novoNo(key, a->z, a->z);
   if(h->key == key) return h;
-  if(h->key < key) 
+  if(h->key < key)
     h->right = inserirR(a, h->right, key);
-  else 
+  else
     h->left = inserirR(a, h->left, key);
   return h;
 }
 link inserirT (ARVORE a, link h, int key) {
-  if(h == a->z) 
-    return novoNo(key, a->z, a->z); 
+  if(h == a->z)
+    return novoNo(key, a->z, a->z);
   if(h->key == key) return h;
   if(h->key < key)  {
     h->right = inserirT(a, h->right, key);
@@ -136,7 +136,7 @@ link rotL(ARVORE a, link h) {
   link x = h->right;
   h->right = x->left;
   x->left = h;
-  return x; 
+  return x;
 }
 link rotR(ARVORE a, link h) {
   link x = h->left;
@@ -145,10 +145,67 @@ link rotR(ARVORE a, link h) {
   return x;
 }
 
+void remover (ARVORE a, int key){
+    removerNo(a, busca(a, key));
+}
+
+void removerNo (ARVORE a, link node){
+    link aux = a->raiz;
+    link pai = NULL;
+    char direcao;
+
+    if(node == aux ){
+        pai = NULL;
+    }else if(node->key < aux->key){     //lado esquerdo
+        if(node->key == aux->left->key){
+            pai = aux;
+            direcao = 'e';
+        }else{
+            removerNo(aux->left, node);
+        }
+    }else if(node->key >= aux->key){    //lado Direito
+        if(node->key == aux->right->key){
+            pai = aux;
+            direcao = 'd';
+        }else{
+            removerNo(aux->right, node);
+        }
+    }
+
+    if(node->left == a->z && node->right == a->z){ ///Node é uma FOLHA
+        if(direcao == 'e'){
+            pai->left = a->z;
+        }else
+            pai->right = a->z;
+        free(node);
+    }else if(node->left != a->z && node->right == a->z){ ///Node tem UM FILHO a ESQUERDA
+        if(direcao == 'e'){
+            pai->left = node->left;
+        }else
+            pai->right = node->left;
+    }else if(node->left == a->z && node->right != a->z){ ///Node tem UM FILHO a DIREITA
+        if(direcao == 'e'){
+            pai->left = node->right;
+        }else
+            pai->right = node->right;
+    }else{  /// Node tem DOIS FILHOS
+        link auxNode1 = node;
+        link auxNode2 = node->right;
+
+        while(auxNode2->right != a->z){
+            auxNode1 = auxNode2;
+            auxNode2 = auxNode2->right;
+        }
+        if(auxNode1 != node){
+            auxNode1->right = auxNode2->left;
+            auxNode2->left = node->left;
+        }
+        auxNode2->right = node->right;
+        a->raiz = auxNode2;
+    }
+    free(node);
+}
+
 #if 0
-void remover (ARVORE a, int key);
-void removerNo (ARVORE a, link node);
 void destroiArvore(ARVORE a);
-#endif 
-
-
+#endif
