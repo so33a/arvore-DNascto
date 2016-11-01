@@ -190,7 +190,7 @@ void removerNo (ARVORE a, link node){
             pai->right = node->right;
     }else{  /// Node tem DOIS FILHOS
         link auxNode1 = node;
-        link auxNode2 = node->right;
+        link auxNode2 = node->left;
 
         while(auxNode2->right != a->z){
             auxNode1 = auxNode2;
